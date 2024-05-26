@@ -1,0 +1,14 @@
+FROM wifi.eltex.loc:5000/ubuntu:22.04
+WORKDIR /home/developer
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN dpkg --add-architecture i386 && \
+    apt update -y &&  \
+    apt autoremove -y && \
+    apt install -y --no-install-recommends sudo:i386 iproute2 wireless-tools atftpd ethtool dnsmasq vlan \
+    iptables wpasupplicant locales tcpdump iperf3 libtirpc3:i386 openssh-server iw tzdata \
+    rfkill nano &&\
+    echo "Asia/Novosibirsk" > /etc/timezone &&\
+    dpkg-reconfigure -f noninteractive tzdata &&\
+    rm -rf /var/lib/apt/lists/*

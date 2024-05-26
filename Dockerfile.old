@@ -1,0 +1,7 @@
+FROM wifi.eltex.loc:5000/apemu:old
+
+COPY scripts/version.old /version
+
+EXPOSE 22 23 80 443 830
+
+CMD ["/usr/bin/bash"]

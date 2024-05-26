@@ -1,0 +1,101 @@
+FROM apemu-distro:latest
+WORKDIR /home/developer
+
+COPY build/ap-emu-build/modules/. /modules/.
+COPY build/ap-emu-build/defaults/. /defaults/.
+COPY scripts/version /version
+COPY scripts/version /boot_version
+COPY scripts/reboot.sh /bin/reboot.sh
+COPY scripts/node_avail.sh /bin/node_avail.sh
+COPY build/ap-emu-build/defaults/default.json /etc/config/config.json
+COPY scripts/lighttpd_start.sh /bin/lighttpd_start.sh
+COPY build/ap-emu-build/ssl/openssl.cnf /usr/local/ssl/openssl.cnf
+COPY build/ap-emu-build/modules/. /usr/share/yuma/modules/.
+COPY scripts/util/. /usr/share/yuma/util/.
+COPY scripts/wlc-cert-erase /bin/wlc-cert-erase
+COPY scripts/wlc-cert-write /bin/wlc-cert-write
+COPY scripts/cert-erase /bin/cert-erase
+COPY scripts/cert-write /bin/cert-write
+COPY scripts/sv/. /etc/sv/.
+COPY scripts/monitor_vaps.sh /bin/monitor_vaps.sh
+COPY samply/target/release/samply /bin/samply
+COPY build/ap-emu-build/SNMP-MIB.tar.gz /
+COPY scripts/run_snmpd.sh /bin/run_snmpd.sh
+COPY scripts/node_avail.sh /bin/node_avail.sh
+COPY scripts/build_version.txt /build_version.txt
+COPY scripts/build_detailed.txt /build_detailed.txt
+COPY build/ap-emu-build/bin/. /bin/.
+COPY build/ap-emu-build/lib/. /lib/.
+COPY scripts/lighttpd.conf.template /etc/lighttpd/lighttpd.conf.template
+COPY scripts/lighttpd-ssl.conf.template /etc/lighttpd/lighttpd-ssl.conf.template
+COPY linux/etc/. /etc/.
+COPY linux/usr/. /usr/.
+COPY ipsec-tools/scripts/. /usr/racoon/.
+COPY scripts/sv/. /etc/service/.
+
+RUN ldconfig &&\
+    ln /bin/bash /bin/sh -sf && \
+    mkdir -p /var/log/tinyproxy &&\
+    mkdir -p /usr/local/etc/tinyproxy &&\
+    chmod +x /bin/node_avail.sh &&\
+    mkdir -p /etc/wlc/certificates &&\
+    chmod +x /bin/lighttpd_start.sh &&\
+    ln -s /usr/bin/bash /usr/bin/clish &&\
+    adduser --gecos '' --disabled-password admin &&\
+    echo "admin:admin" | chpasswd &&\
+    adduser --gecos '' --disabled-password netconf &&\
+    echo "netconf:netconf" | chpasswd &&\
+    ln -s /usr/sbin/in.tftpd /bin/tfpd &&\
+    mkdir -p /etc/config/ssh &&\
+    mkdir -p /etc/certificates &&\
+    mkdir -p /etc/config/ssh &&\
+    /bin/ssh-keygen -q -N 12345678 -A &&\
+    mv /etc/ssh/ssh_host* /etc/config/ssh/ &&\
+    mkdir -p /var/run/sshd &&\
+    chmod +x /bin/wlc-cert-write &&\
+    chmod +x /bin/wlc-cert-erase &&\
+    chmod +x /bin/cert-write &&\
+    chmod +x /bin/cert-erase &&\
+    chmod +x /bin/reboot.sh &&\
+    chmod +x /bin/run_snmpd.sh &&\
+    chmod +x /bin/node_avail.sh &&\
+    chmod +x /bin/samply &&\
+    chmod +x /bin/monitor_vaps.sh &&\
+    ln -s /bin/busybox /bin/inetd &&\
+    ln -s /bin/busybox /bin/udhcpc &&\
+    ln -s /bin/busybox /bin/udhcpd &&\
+    ln -s /bin/busybox /bin/telnetd &&\
+    ln -s /bin/busybox /bin/ping &&\
+    ln -s /bin/busybox /bin/tftp &&\
+    ln -s /bin/busybox /bin/syslogd &&\
+    ln -s /bin/busybox /bin/arp &&\
+    ln -s /bin/busybox /bin/dnsd &&\
+    ln -s /bin/busybox /bin/ifconfig &&\
+    ln -s /bin/busybox /bin/nameif &&\
+    ln -s /bin/busybox /bin/netstat &&\
+    ln -s /bin/busybox /bin/traceroute &&\
+    ln -s /bin/busybox /bin/route &&\
+    ln -s /bin/busybox /bin/chpasswd &&\
+    ln -s /bin/busybox /bin/arping &&\
+    ln -s /bin/busybox /bin/telnet &&\
+    ln -s /bin/busybox /bin/adduser &&\
+    ln -s /bin/busybox /bin/deluser &&\
+    ln -s /bin/busybox /bin/killall &&\
+    ln -s /bin/busybox /usr/local/bin/ps &&\
+    ln -s /bin/busybox /bin/runsvdir &&\
+    ln -s /bin/busybox /bin/runsv &&\
+    ln -s /bin/busybox /bin/sv &&\
+    ln -s /bin/busybox /bin/wget &&\
+    ln -s /bin/busybox /bin/chpst &&\
+    ln -s /bin/busybox /bin/brctl &&\
+    ln -s /bin/service-activator /bin/service-activator-server &&\
+    mkdir -p /bin/.hidden &&\
+    ln -sf /bin/reloadcfg /bin/.hidden/set-management-vlan &&\
+    ln -sf /bin/reloadcfg /bin/.hidden/restart-service-activator &&\
+    chmod +x /etc/sv/core/run && chmod +x /etc/sv/configd/run && chmod +x /etc/sv/networkd/run  && chmod +x /etc/sv/check_vaps/run &&\
+    chmod +x /etc/sv/core/finish && chmod +x /etc/sv/configd/finish && chmod +x /etc/sv/networkd/finish && chmod +x /etc/sv/check_vaps/finish &&\
+    cp /usr/sbin/sshd /bin/sshd
+
+EXPOSE 22 23 80 443 830 161 162 3000
+
+CMD ["/usr/bin/bash"]

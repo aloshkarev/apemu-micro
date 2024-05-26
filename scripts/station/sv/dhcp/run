@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+while [ ! -r "/sys/class/net/wlan0/address" ]; do
+    sleep 2
+done
+
+exec 2>&1
+exec chpst -u root /bin/udhcpc -t 100 -i wlan0 -s /etc/udhcpc.script

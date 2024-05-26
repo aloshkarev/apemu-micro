@@ -1,0 +1,11 @@
+FROM ubuntu:22.04
+WORKDIR /home/developer
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN dpkg --add-architecture i386 && \
+    apt update -y &&  \
+    apt autoremove -y && \
+    apt install -y --no-install-recommends linux-lowlatency linux-headers-lowlatency gcc g++ cmake make build-essential dkms dpkg-dev debhelper fakeroot libnl-3-dev \
+    libnl-genl-3-dev libevent-dev libconfig-dev python3.10 python3-pip&& \
+    rm -rf /var/lib/apt/lists/*

@@ -1,0 +1,34 @@
+FROM wifi.eltex.loc:5000/ubuntu:22.04
+WORKDIR /home/sta
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+COPY scripts/station/sv/. /etc/sv/.
+COPY scripts/station/simple.script /etc/udhcpc.script
+COPY build/ap-emu-build/bin/scanwlan /bin/scanwlan
+
+RUN dpkg --add-architecture i386 && \
+    apt update -y &&  \
+    apt autoremove -y && \
+    apt install -y --no-install-recommends sudo:i386 iproute2 wireless-tools iw dnsmasq\
+    iptables wpasupplicant locales tcpdump iperf3 tzdata tshark busybox runit iputils-ping\
+    rfkill nano&&\
+    echo "Asia/Novosibirsk" > /etc/timezone &&\
+    dpkg-reconfigure -f noninteractive tzdata &&\
+    rm -rf /var/lib/apt/lists/* &&\
+    ln -s /usr/bin/busybox /bin/udhcpc &&\
+    ln -s /usr/bin/busybox /bin/wget &&\
+    ln -s /usr/bin/busybox /bin/arp &&\
+    ln -s /usr/bin/busybox /bin/ifconfig &&\
+    ln -s /usr/bin/busybox /bin/netstat &&\
+    ln -s /usr/bin/busybox /bin/route &&\
+    ln -s /usr/bin/busybox /bin/nameif &&\
+    ln -s /usr/bin/busybox /bin/traceroute &&\
+    ln -s /usr/bin/busybox /bin/ifup &&\
+    ln -s /usr/bin/busybox /bin/ifdown &&\
+    chmod +x /etc/sv/wpa/run && chmod +x /etc/sv/wpa/finish &&\
+    chmod +x /etc/sv/dhcp/run && chmod +x /etc/sv/dhcp/finish
+
+COPY scripts/station/wpa_supplicant.conf /etc/wpa_supplicant/.
+
+CMD ["/usr/bin/bash"]
